@@ -177,7 +177,7 @@ pub static LANGUAGES: [LangInfo; 12] = [
 
 impl LangInfo {
     fn catalog(&self) -> &Catalog {
-        self.catalog.get_or_init(|| Catalog::parse(self.source))
+        self.catalog.get_or_init(|| Catalog::parse(self.source).with_plain(crate::identity::strings(self.code)))
     }
 }
 
@@ -451,6 +451,10 @@ pub fn message(lang: Lang, s: &str) -> String {
 }
 
 fn message_at(lang: Lang, s: &str, depth: usize) -> String {
+    // Messages come from every crate, most of which still name the upstream product; the brand
+    // layer renames them here, on the way to the catalog and on the way out (see `identity`).
+    let s = crate::identity::rewrite_cow(s);
+    let s = s.as_ref();
     let Some((template, caps)) = lang.catalog().message(s) else { return s.to_string() };
     let values: Vec<(&str, String)> =
         caps.into_iter().map(|(k, v)| (k, if depth > 1 { message_at(lang, v, depth - 1) } else { v.to_string() })).collect();

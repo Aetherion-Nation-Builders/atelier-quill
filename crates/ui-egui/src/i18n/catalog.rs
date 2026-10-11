@@ -137,8 +137,11 @@ pub fn parse_entries(text: &str) -> (Vec<Entry>, Vec<String>) {
         }
         let mut cols = line.split('\t');
         match (cols.next(), cols.next(), cols.next(), cols.next()) {
+            (Some(_), Some(src), Some(_), None) if crate::identity::retired(src) => {}
             (Some(ctx), Some(src), Some(tr), None) if !src.is_empty() && !tr.is_empty() => {
-                entries.push((unescape(ctx), unescape(src), unescape(tr)));
+                // The catalogs name the upstream product; the UI names ours (see `identity`).
+                let rewrite = |s: &str| crate::identity::rewrite(&unescape(s));
+                entries.push((unescape(ctx), rewrite(src), rewrite(tr)));
             }
             _ => errors.push(format!("line {}: expected `context<TAB>source<TAB>translation`", n + 1)),
         }
@@ -175,6 +178,14 @@ impl Catalog {
         // Most literal text first, so `Couldn't open {name}: {e}` wins over `{path}: {e}`.
         c.templates.sort_by_key(|t| std::cmp::Reverse(t.literal));
         c
+    }
+
+    /// Adds (or replaces) context-free strings: the brand layer's own strings (`identity::strings`).
+    pub fn with_plain(mut self, entries: Vec<(&str, &str)>) -> Catalog {
+        for (src, tr) in entries {
+            self.plain.insert(src.to_string(), tr.to_string());
+        }
+        self
     }
 
     pub fn plain(&self, s: &str) -> Option<&str> {

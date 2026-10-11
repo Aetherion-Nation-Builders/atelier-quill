@@ -1,0 +1,101 @@
+# Atelier brand strings: the UI strings that are ours, not VectorCraft's, with their translations.
+# Format: language code <TAB> English source <TAB> translation. The `product` line is the rename
+# applied to every upstream catalog entry as it loads (see identity.rs and docs/brand.md).
+# Languages without a line for a string show the English.
+product	VectorCraft	Atelier Quill
+
+en	Join the Nation	Join the Nation
+en	Join the Nation (aetherionnnation.com)	Join the Nation (aetherionnnation.com)
+en	Atelier Suite	Atelier Suite
+en	Atelier suite	Atelier suite
+en	Atelier Quill Website	Atelier Quill Website
+en	Atelier Quill website	Atelier Quill website
+en	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.
+
+fr	Join the Nation	Rejoindre la Nation
+fr	Join the Nation (aetherionnnation.com)	Rejoindre la Nation (aetherionnnation.com)
+fr	Atelier Suite	Suite Atelier
+fr	Atelier suite	Suite Atelier
+fr	Atelier Quill Website	Site web d’Atelier Quill
+fr	Atelier Quill website	Site web d’Atelier Quill
+fr	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Fait partie d’Atelier, fondé sur VectorCraft. MIT OR Apache-2.0. Polices : Source Sans 3, Inter, JetBrains Mono (OFL). Icônes : Lucide (ISC) + VectorCraft.
+
+de	Join the Nation	Der Nation beitreten
+de	Join the Nation (aetherionnnation.com)	Der Nation beitreten (aetherionnnation.com)
+de	Atelier Suite	Atelier-Suite
+de	Atelier suite	Atelier-Suite
+de	Atelier Quill Website	Atelier Quill-Website
+de	Atelier Quill website	Atelier Quill-Website
+de	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Teil von Atelier, aufgebaut auf VectorCraft. MIT OR Apache-2.0. Schriften: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.
+
+es	Join the Nation	Únete a la Nación
+es	Join the Nation (aetherionnnation.com)	Únete a la Nación (aetherionnnation.com)
+es	Atelier Suite	Suite Atelier
+es	Atelier suite	Suite Atelier
+es	Atelier Quill Website	Sitio web de Atelier Quill
+es	Atelier Quill website	Sitio web de Atelier Quill
+es	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Parte de Atelier, construido sobre VectorCraft. MIT OR Apache-2.0. Fuentes: Source Sans 3, Inter, JetBrains Mono (OFL). Iconos: Lucide (ISC) + VectorCraft.
+
+it	Join the Nation	Unisciti alla Nazione
+it	Join the Nation (aetherionnnation.com)	Unisciti alla Nazione (aetherionnnation.com)
+it	Atelier Suite	Suite Atelier
+it	Atelier suite	Suite Atelier
+it	Atelier Quill Website	Sito web di Atelier Quill
+it	Atelier Quill website	Sito web di Atelier Quill
+it	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Parte di Atelier, basato su VectorCraft. MIT OR Apache-2.0. Font: Source Sans 3, Inter, JetBrains Mono (OFL). Icone: Lucide (ISC) + VectorCraft.
+
+pt-br	Join the Nation	Junte-se à Nação
+pt-br	Join the Nation (aetherionnnation.com)	Junte-se à Nação (aetherionnnation.com)
+pt-br	Atelier Suite	Suíte Atelier
+pt-br	Atelier suite	Suíte Atelier
+pt-br	Atelier Quill Website	Site do Atelier Quill
+pt-br	Atelier Quill website	Site do Atelier Quill
+pt-br	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Parte do Atelier, construído sobre o VectorCraft. MIT OR Apache-2.0. Fontes: Source Sans 3, Inter, JetBrains Mono (OFL). Ícones: Lucide (ISC) + VectorCraft.
+
+ru	Join the Nation	Присоединиться к Нации
+ru	Join the Nation (aetherionnnation.com)	Присоединиться к Нации (aetherionnnation.com)
+ru	Atelier Suite	Пакет Atelier
+ru	Atelier suite	Пакет Atelier
+ru	Atelier Quill Website	Сайт Atelier Quill
+ru	Atelier Quill website	Сайт Atelier Quill
+ru	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Часть Atelier, построен на VectorCraft. MIT OR Apache-2.0. Шрифты: Source Sans 3, Inter, JetBrains Mono (OFL). Значки: Lucide (ISC) + VectorCraft.
+
+uk	Join the Nation	Приєднатися до Нації
+uk	Join the Nation (aetherionnnation.com)	Приєднатися до Нації (aetherionnnation.com)
+uk	Atelier Suite	Пакет Atelier
+uk	Atelier suite	Пакет Atelier
+uk	Atelier Quill Website	Сайт Atelier Quill
+uk	Atelier Quill website	Сайт Atelier Quill
+uk	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Частина Atelier, побудований на VectorCraft. MIT OR Apache-2.0. Шрифти: Source Sans 3, Inter, JetBrains Mono (OFL). Значки: Lucide (ISC) + VectorCraft.
+
+cs	Join the Nation	Přidat se k Národu
+cs	Join the Nation (aetherionnnation.com)	Přidat se k Národu (aetherionnnation.com)
+cs	Atelier Suite	Sada Atelier
+cs	Atelier suite	Sada Atelier
+cs	Atelier Quill Website	Web Atelier Quill
+cs	Atelier Quill website	Web Atelier Quill
+cs	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Součást Atelier, postaveno na VectorCraftu. MIT OR Apache-2.0. Písma: Source Sans 3, Inter, JetBrains Mono (OFL). Ikony: Lucide (ISC) + VectorCraft.
+
+ja	Join the Nation	Nation に参加
+ja	Join the Nation (aetherionnnation.com)	Nation に参加 (aetherionnnation.com)
+ja	Atelier Suite	Atelier スイート
+ja	Atelier suite	Atelier スイート
+ja	Atelier Quill Website	Atelier Quill の Web サイト
+ja	Atelier Quill website	Atelier Quill の Web サイト
+ja	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Atelier の一部。VectorCraft を基に構築。MIT OR Apache-2.0。フォント: Source Sans 3, Inter, JetBrains Mono (OFL)。アイコン: Lucide (ISC) + VectorCraft。
+
+zh-hans	Join the Nation	加入 Nation
+zh-hans	Join the Nation (aetherionnnation.com)	加入 Nation (aetherionnnation.com)
+zh-hans	Atelier Suite	Atelier 套件
+zh-hans	Atelier suite	Atelier 套件
+zh-hans	Atelier Quill Website	Atelier Quill 网站
+zh-hans	Atelier Quill website	Atelier Quill 网站
+zh-hans	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Atelier 的一部分，基于 VectorCraft。MIT OR Apache-2.0。字体：Source Sans 3、Inter、JetBrains Mono (OFL)。图标：Lucide (ISC) + VectorCraft。
+
+zh-hant	Join the Nation	加入 Nation
+zh-hant	Join the Nation (aetherionnnation.com)	加入 Nation (aetherionnnation.com)
+zh-hant	Atelier Suite	Atelier 套件
+zh-hant	Atelier suite	Atelier 套件
+zh-hant	Atelier Quill Website	Atelier Quill 網站
+zh-hant	Atelier Quill website	Atelier Quill 網站
+zh-hant	Part of Atelier, built on VectorCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + VectorCraft.	Atelier 的一部分，基於 VectorCraft。MIT OR Apache-2.0。字型：Source Sans 3、Inter、JetBrains Mono (OFL)。圖示：Lucide (ISC) + VectorCraft。
