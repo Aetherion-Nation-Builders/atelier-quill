@@ -32,6 +32,7 @@ pub mod graphics;
 pub mod i18n;
 pub mod icon_data;
 pub mod icons;
+pub mod identity;
 pub mod io;
 pub mod menus;
 pub mod native_menu;
