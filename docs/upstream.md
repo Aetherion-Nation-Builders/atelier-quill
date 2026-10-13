@@ -18,5 +18,11 @@ in below the line; if the header conflicts, keep ours. For anything else, keep u
 and re-apply the rename.
 
 Workflows that are turned off in this repository, on purpose (they cost Actions minutes and
-build things we do not ship yet): `windows7.yml`, `windows-arm64.yml`, `release.yml`. Turn one on
+build things we do not ship yet): `windows7.yml`, `windows-arm64.yml`. Turn one on
 from the Actions tab when it is wanted.
+
+`release.yml` builds the macOS DMG only for now, on the standard `macos-15` runner, unsigned
+(`docs/releasing.md`). Its other platform jobs are kept from upstream and skipped unless named in
+the repository variable `ATELIER_RELEASE_PLATFORMS`; the DMG holds `Atelier Quill.app` on a
+`Atelier Quill` volume, with the Atelier background (`packaging/macos/dmg/`). When syncing, keep those
+lines of ours in `release.yml`, `packaging/macos/package.sh` and `packaging/macos/dmg/`.
