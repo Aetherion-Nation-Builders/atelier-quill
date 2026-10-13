@@ -1,5 +1,14 @@
 # Releasing VectorCraft
 
+> **Atelier Quill, for now:** a release builds the **macOS DMG only**, on GitHub's standard
+> macOS runner, **unsigned** (ad-hoc signed, not notarized) until the Apple signing secrets below
+> are added. The other platforms build again when listed in the repository variable
+> `ATELIER_RELEASE_PLATFORMS` (for example `windows linux freebsd web`). The draft is named
+> `Atelier Quill v<version>`; publish it to make it the release Atelier Gate installs. To cut one
+> without the `release` branch: **Actions › Release › Run workflow** on `main`. An unsigned app
+> downloaded in a browser opens the first time through **System Settings › Privacy & Security ›
+> Open Anyway** (macOS 15). The rest of this page is upstream's guide.
+
 Every push to the `release` branch runs `.github/workflows/release.yml`. The workflow builds
 installers for macOS, Windows, Linux (including Flatpak bundles) and FreeBSD, plus the web build, and creates or updates a
 **draft** GitHub Release named `VectorCraft v<version>`. Nobody sees a draft until a maintainer
@@ -68,7 +77,7 @@ The rules are in craftrules `standards/fonts.md`, the build option in
 ### macOS
 
 `packaging/macos/package.sh` builds `aarch64-apple-darwin` and `x86_64-apple-darwin` with
-`MACOSX_DEPLOYMENT_TARGET=11.0`, joins them with `lipo` and assembles `VectorCraft.app`:
+`MACOSX_DEPLOYMENT_TARGET=11.0`, joins them with `lipo` and assembles `Atelier Quill.app` (its executable and icon file inside keep the machine name `VectorCraft`):
 
 - `Info.plist` is generated from `Info.plist.in` (bundle id `ai.storyteller.vectorcraft`,
   `LSMinimumSystemVersion` 11.0, the version and the build commit). The icon is
@@ -86,7 +95,7 @@ The rules are in craftrules `standards/fonts.md`, the build option in
   ticket is stapled and checked with `stapler validate` and `spctl`. The app goes on a DMG
   (`hdiutil makehybrid` and `convert`, with an `Applications` link to drag onto), which is signed,
   notarized and stapled too. Its Finder window (background, icon size and positions) comes from
-  [`packaging/macos/dmg/`](../packaging/macos/dmg/README.md), and its volume is named `VectorCraft`
+  [`packaging/macos/dmg/`](../packaging/macos/dmg/README.md), and its volume is named `Atelier Quill`
   without the version, which the window's background needs; the DMG file name keeps the version.
 - **CLI:** the universal `vectorcraft-cli` is signed the same way, zipped, and the zip is
   notarized. A bare executable can't hold a stapled ticket, so Gatekeeper looks the CLI's ticket up
