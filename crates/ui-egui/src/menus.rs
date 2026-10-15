@@ -181,14 +181,36 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ),
     ("shortcuts.export", "Export Keyboard Shortcuts…", "", "{path?}"),
     ("shortcuts.import", "Import Keyboard Shortcuts…", "", "{path? | data?}"),
+    (
+        "ui.shortcutImportDialog",
+        "Import Shortcut Set…",
+        "",
+        "{path? | dataBase64?, name?} open Import Shortcut Set for a shortcut set another app saved as text (.kys; without a file, pick one): each entry matched to a tool, command or panel, and its key and modifier codes decoded (dialog `shortcutImport`: name, start: defaults|current, remember, rows: [{name, section, line, key, modifiers, target: entry id | \"\" (no equivalent) | null (not chosen), from, choices, on}], keys and mods: {code: {text, from, votes, names}}); Apply assigns the ready rows over Edit › Keyboard Shortcuts' working set, remembers the matches (importMatches.set) and shows Keyboard Shortcuts, whose OK keeps them. File › Open of a .kys opens it too",
+    ),
     ("view.outline", "Outline", "Cmd+Y", "{} toggle Outline/Preview"),
     ("view.pixelPreview", "Pixel Preview", "Cmd+Alt+Y", "{}"),
     ("view.trimView", "Trim View", "", "{} toggle: hide everything outside the artboards"),
     ("view.cornerWidget", "Hide Corner Widget", "", "{} toggle the live corner widgets"),
     ("view.snapToPixel", "Snap to Pixel", "", "{} toggle: drawing and moving land on whole pixels"),
+    (
+        "view.preciseCursors",
+        "Precise Cursors",
+        "",
+        "{} toggle General › Use Precise Cursors: the drawing tools' pointers become a crosshair → true when on",
+    ),
     ("view.textThreads", "Hide Text Threads", "Cmd+Shift+Y", "{} toggle the thread lines between threaded text frames"),
     ("view.gradientAnnotator", "Hide Gradient Annotator", "Cmd+Alt+G", "{} toggle the Gradient tool's annotator"),
     ("type.hiddenCharacters", "Show Hidden Characters", "Cmd+Alt+I", "{} toggle markers for spaces, paragraph ends and story ends"),
+    ("type.alignLeft", "Align left", "Cmd+Shift+L", "{} align the selected type's paragraphs (or those the Type tool's selection touches) left"),
+    (
+        "type.alignCenter",
+        "Align center",
+        "Cmd+Shift+C",
+        "{} align the selected type's paragraphs (or those the Type tool's selection touches) centred",
+    ),
+    ("type.alignRight", "Align right", "Cmd+Shift+R", "{} align the selected type's paragraphs (or those the Type tool's selection touches) right"),
+    ("type.justifyLeft", "Justify with last line aligned left", "Cmd+Shift+J", "{} justify the selected type's paragraphs, last line aligned left"),
+    ("type.justifyAll", "Justify all lines", "Cmd+Shift+F", "{} justify every line of the selected type's paragraphs"),
     (
         "type.bold",
         "Bold",
@@ -246,6 +268,36 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "",
         "{tool: id, floating?: bool} float the toolbar group holding `tool` (in the current Basic or Advanced layout) as its own strip of tool buttons (true), put it back in the toolbar (false) or toggle (omitted), as dragging or clicking a flyout's tear-off bar and the strip's × do; returns the new state",
     ),
+    (
+        "toolbar.show",
+        "Toolbar: Show Controls",
+        "",
+        "{control?: \"fillStroke\"|\"coloring\"|\"drawMode\"|\"screenMode\", on?: bool} show (true), hide (false) or toggle (omitted) one of the controls under the toolbar's tools (Fill and Stroke, Coloring, Draw Mode, Screen Mode), as the All Tools drawer's Show section does; saved with the preferences; returns every control's state",
+    ),
+    (
+        "window.editToolbar",
+        "Edit Toolbar",
+        "",
+        "{open?: bool} open (true), close (false) or toggle (omitted) the All Tools drawer beside the toolbar, as the toolbar's ••• button does; while it is open, tools drag from it onto the toolbar and from the toolbar into it (Escape or a click outside closes it); returns the new state",
+    ),
+    (
+        "toolbar.addTool",
+        "Toolbar: Add Tool",
+        "",
+        "{tool: id, slot?: n, place?: \"before\"|\"after\"|\"group\"} put `tool` in the current (Basic or Advanced) toolbar, moving it if it is there already: before (default) or after slot `slot` (0 = the first; omitted: at the end) in its own slot, or into that slot's group (its flyout), as dropping a tool from the Edit Toolbar drawer does; saved with the preferences; returns the toolbar's slots (lists of tool ids)",
+    ),
+    (
+        "toolbar.removeTool",
+        "Toolbar: Remove Tool",
+        "",
+        "{tool: id, group?: bool} take `tool` (with `group`, its whole group) out of the current toolbar (one not in it stays out), as dragging it into the Edit Toolbar drawer does; returns the toolbar's slots",
+    ),
+    (
+        "toolbar.reset",
+        "Toolbar: Reset",
+        "",
+        "{} put the current (Basic or Advanced) toolbar back as it ships, undoing Edit Toolbar's changes; returns its slots",
+    ),
     ("window.taskBar", "Contextual Task Bar", "", "{}"),
     (
         "window.taskBar.pin",
@@ -257,16 +309,30 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
     ("window.dock", "Panels", "Tab", "{} show/hide all panels"),
     ("window.panel", "Show Panel", "", "{panel: id} e.g. layers, swatches, stroke (case-insensitive; display labels like \"Layers\" work too)"),
     (
+        "window.panel.layout",
+        "Change Panel Layout",
+        "",
+        "{action} serialized docking action, including floating geometry, divider sizes and accordion state",
+    ),
+    (
+        "window.panel.move",
+        "Move Panel",
+        "",
+        "{panel, anchor, zone?: tab|center|left|right|top|bottom, before?: panel} group, split or reorder a panel",
+    ),
+    ("window.panel.activate", "Activate Panel", "", "{panel} show and select a panel in its current group"),
+    ("window.panel.close", "Close Panel", "", "{panel} hide a panel"),
+    (
         "window.panel.float",
         "Float Panel",
         "",
-        "{panel: id or \"tools\", x?, y?, onto?: id, group?: bool} float a panel out of the dock (or out of its floating group) as its own floating group with its top-left corner at x, y in window points (default: cascaded), as dragging its tab out of the dock does; `onto` stacks it with the floating group holding that panel instead; `group` takes its whole group (its floating group, or the Properties | Layers | Libraries tabs left in the dock); a panel alone in its group is moved. \"tools\" floats the Tools panel. Returns {panel, floating, group, pos}",
+        "{panel: id or \"tools\", x?, y?, onto?: id, below?: id, above?: id, group?: bool, collapsed?: bool} float a panel out of the dock (or out of its floating group) as its own floating group with its top-left corner at x, y in window points (default: cascaded), as dragging its tab out of the dock does; `onto` stacks it as a tab with the floating group holding that panel instead; `below` / `above` puts its group in a set with that group, right below or above it, as dropping it on that group's lower or upper half does (the set's groups stack top to bottom and move together); `group` takes its whole group (its floating group, or the Properties | Layers | Libraries tabs left in the dock); a panel alone in its group is moved (out of its set, given x, y); `collapsed` shows its group's tabs only, as a double-click on a tab does; a docked group floats its dock column. \"tools\" floats the Tools panel. Returns {panel, floating, group, set, pos, collapsed, column}",
     ),
     (
         "window.panel.dock",
         "Dock Panel",
         "",
-        "{panel: id or \"tools\", group?: bool} put a floating panel (with `group`, its whole group) back in the dock, as dropping it on the dock or its group's × does: Properties, Layers and Libraries in the tabbed group, the other panels in the icon column; \"tools\" docks the Tools panel at the window's left edge",
+        "{panel: id or \"tools\", group?: bool, column?: true or n} put a floating panel (with `group`, its whole group) back in the dock, as dropping it on the dock or its group's × does: Properties, Layers and Libraries in the tabbed group, the other panels in the icon column; with `column`, dock its group and the rest of its set as a dock column instead, as dropping it on the left edge of the icon column or of a dock column does: `true` at the dock's left, n at that place (1: next to the icon column, counting left); \"tools\" docks the Tools panel at the window's left edge. Returns {panel, floating, column}",
     ),
     (
         "window.collapseDock",
@@ -301,7 +367,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "ui.recolorDialog",
         "Recolor Artwork…",
         "",
-        "{colors?: n (an n-colour job: n rows, Scale Tints) | [colour] (new colours to assign, in order; with no art selected and no group they are the rows, and OK saves them as a new colour group, field `groupName`: the Color Guide's Edit or Apply Colors), library?: id or name, or \"document\" (Limit to Library; \"\" the first library), group?: colour group (Edit or Apply Color Group: OK rewrites the group with the new colours and recolours the selected art, if any)} open Recolor Artwork (dialog `recolor`; engine: recolor.reduce / recolor.apply)",
+        "{colors?: n (an n-colour job: n rows, Scale Tints) | [colour] (new colours to assign, in order; with no art selected and no group they are the rows, and OK saves them as a new colour group, field `groupName`: the Color Guide's Edit or Apply Colors), library?: id or name; or \"document\" (Limit to Library; \"\" the first library), group?: colour group (Edit or Apply Color Group: OK rewrites the group with the new colours and recolours the selected art, if any)} open Recolor Artwork (dialog `recolor`; engine: recolor.reduce / recolor.apply)",
     ),
     (
         "ui.cropImage",
@@ -354,6 +420,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "Graphic Style Options…",
         "",
         "{name?} open Graphic Style Options (dialog `graphicStyleOptions`, field `name`): for style `name` OK renames it (graphicStyle.rename); without, OK makes a new style of that name from the selection (graphicStyle.new)",
+    ),
+    (
+        "ui.symbolOptions",
+        "Symbol Options…",
+        "",
+        "{} open Symbol Options for a new symbol made from the selection, what the Symbols panel's New Symbol opens (dialog `symbolOptions`, field `name`, default the first free \"New Symbol\"/\"New Symbol N\"); OK runs symbol.new {name}",
     ),
     (
         "tool.options",
@@ -522,7 +594,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "ui.widthPointEdit",
         "Width Point Edit…",
         "",
-        "{id, index} open Width Point Edit for width point `index` of path `id` (dialog `widthPoint`: side1, side2 (pt), linked, adjustAdjoining; double-clicking a width point with the Width tool opens it too): OK runs stroke.widthPoint.set, discard: true (the Delete button) stroke.widthPoint.remove",
+        "{id, index?: existing width point, t?: 0..1 for a new point, adjustAdjoining?: bool (false)} open Width Point Edit on path `id` (dialog `widthPoint`: side1, side2 (pt), linked, adjustAdjoining; double-clicking the stroke opens it too, Shift on a width point enabling adjoining adjustment): OK runs stroke.widthPoint.set; discard: true (Delete) removes an existing point or discards a prospective point",
     ),
     (
         "ui.corners",
@@ -618,6 +690,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "{ids?} open Placement Options for images `ids` (default: the selected ones; dialog `placementOptions`: ids, preserve, align, clip, see links.placementOptions); OK runs links.placementOptions",
     ),
     (
+        "ui.findLinksInFolder",
+        "Find Linked Files in Folder…",
+        "",
+        "{folder?, ids?: [image or placed document ids]} the Links panel's Find in Folder…: asks for a folder (or takes folder), then opens Find Linked Files (dialog `findLinks`) looking in it and its subfolders for the files of linked objects `ids` (default: the selected linked images and placed documents, else every missing file; links.findFiles). An error when there is nothing to look for. Disabled where there is no folder picker (the web)",
+    ),
+    (
         "ui.packageDialog",
         "Package…",
         "Cmd+Alt+Shift+P",
@@ -702,6 +780,12 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         "Install Plug-in…",
         "",
         "{path?: a .wasm file} install a WebAssembly plug-in (plugin.install); without a path pick one (the web opens the browser's file picker; File › Open of a .wasm installs it too)",
+    ),
+    (
+        "ui.checkScript",
+        "Check Script…",
+        "",
+        "{path? | data? | dataBase64?, name?, includes?: true with a path} check a script written for the reference app without running it (script.check; with a path, the files its #include lines name are checked too) and show the report (dialog `scriptCheck`: `report`, script.check's result; Copy Report copies it as JSON); without a file pick one (the web opens the browser's file picker; File › Open of a .jsx, .jsxinc or .jsxbin file shows the report too)",
     ),
     (
         "ui.perspectiveGridDialog",
@@ -842,7 +926,20 @@ pub(crate) fn opt_bool(p: &Value, key: &str) -> Result<Option<bool>, String> {
 }
 
 /// Handle a UI command. `None` = not a UI command (the engine handles it).
+/// `params` has only keys the params description of engine command `id` names, or the parameter
+/// error naming the one it doesn't (#1442). The UI's own commands aren't checked yet: their
+/// descriptions haven't been audited against what they read.
+pub fn check_params(session: &vectorcraft_engine::Session, id: &str, params: &Value) -> Result<(), String> {
+    if UI_COMMANDS.iter().any(|c| c.0 == id) {
+        return Ok(());
+    }
+    session.check_params(id, params).map_err(|e| e.to_string())
+}
+
 pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<Result<Value, String>> {
+    if let Some(result) = crate::panel_docking::command(app, id, p) {
+        return Some(result);
+    }
     if id == "app.language" {
         let lang = p.get("lang").and_then(Value::as_str).unwrap_or("");
         let value = if lang.eq_ignore_ascii_case("auto") {
@@ -861,6 +958,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
     if let Some(r) = crate::shortcut_editor::run_command(app, id, p)
         .or_else(|| crate::workspaces::run_command(app, id, p))
         .or_else(|| crate::floating::command(app, id, p))
+        .or_else(|| crate::edit_toolbar::command(app, id, p))
     {
         return Some(r);
     }
@@ -973,10 +1071,22 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
             None => Err("no such saved selection".into()),
         },
         "view.snapToPixel" => flag(&mut app.ui.view.snap_to_pixel),
+        // The preference itself (General › Use Precise Cursors), so the command, the dialog and the saved
+        // preferences share one value.
+        "view.preciseCursors" => {
+            let on = !app.session.prefs.use_precise_cursors;
+            app.run("prefs.set", json!({"key": "usePreciseCursors", "value": on})).map(|_| {
+                crate::prefs_dialog::snapshot(app);
+                json!(on)
+            })
+        }
         "view.textThreads" => flag(&mut app.ui.view.text_threads),
         "type.hiddenCharacters" => flag(&mut app.ui.view.hidden_chars),
         "type.bold" => crate::panels::character::toggle_face(app, Face::Bold),
         "type.italic" => crate::panels::character::toggle_face(app, Face::Italic),
+        id if let Some((_, justify)) = crate::panels::paragraph::ALIGN_COMMANDS.iter().find(|c| c.0 == id) => {
+            crate::panels::paragraph::align(app, justify)
+        }
         "view.gradientAnnotator" => flag(&mut app.ui.view.gradient_annotator),
         "effect.last" => match app.last_effect.clone() {
             Some((e, params)) => {
@@ -1126,6 +1236,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
                 && let Some(g) = crate::floating::group_of(&app.ui, p).and_then(|i| app.ui.floating_panels.get_mut(i))
             {
                 g.active = g.panels.iter().position(|q| q == p).unwrap_or(g.active);
+                g.collapsed = false;
                 let out = json!({ "floating": g.panels });
                 app.ui.dock = true;
                 return Some(Ok(out));
@@ -1218,6 +1329,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         }
         "ui.colorPicker" => crate::dialogs::open_color_picker(app, p),
         "ui.graphicStyleOptions" => crate::dialogs::graphic_style_options::open(app, s("name").as_deref()),
+        "ui.symbolOptions" => crate::dialogs::symbol_options::open(app),
         "ui.brushOptions" => crate::dialogs::brush_options::open(app, s("name").as_deref()),
         "tool.options" => crate::toolbar::open_options(app, &s("tool").unwrap_or_default()),
         "ui.colorGuideOptions" => {
@@ -1275,7 +1387,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.spotColors" => crate::dialogs::spot_colors::open(app),
         "ui.menuDialog" => match s("command").as_deref() {
             Some(c) if crate::dialogs::envelope::opens(c) => crate::dialogs::envelope::open(app, c),
-            c => match c.and_then(menu_dialog) {
+            c => match c.and_then(|c| menu_dialog(app, c)) {
                 Some((kind, fields)) => {
                     app.ui.dialog = Some(crate::state::Dialog::new(kind, fields));
                     Ok(Value::Null)
@@ -1310,7 +1422,11 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "links.editOriginal" => crate::panels::links::open_file(app, p, false),
         "links.reveal" => crate::panels::links::open_file(app, p, true),
         "ui.placementOptionsDialog" => crate::dialogs::placement_options::open(app, p),
+        "ui.findLinksInFolder" => {
+            crate::dialogs::find_links::find_in_folder_command(app, s("folder"), p.get("ids").and_then(Value::as_array).cloned())
+        }
         "ui.packageDialog" => crate::dialogs::package::open(app),
+        "ui.shortcutImportDialog" => crate::dialogs::shortcut_import::command(app, p),
         "file.showPackage" => crate::dialogs::package::show_package(app, p),
         "docInfo.save" => crate::panels::doc_info::save_report(app, p),
         // Slice Options… and Divide Slices…: their dialogs, on the selected slices.
@@ -1352,6 +1468,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
         "ui.printPresetDialog" => crate::dialogs::print::open_preset(app, p),
         "plugin.dialog" => crate::dialogs::plugin::open(app, p),
         "ui.installPlugin" => io::install_plugin(app, s("path")),
+        "ui.checkScript" => crate::dialogs::script_check::command(app, p),
         "ui.perspectiveGridDialog" => crate::dialogs::perspective_grid::open(app),
         "ui.perspectivePresetsDialog" => {
             crate::dialogs::perspective_presets::open(app, s("selected").as_deref());
@@ -1370,7 +1487,7 @@ pub fn run_ui_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<R
 }
 
 /// `view.goToArtboard`: make artboard `index` (a number, or first / previous / next / last from
-/// the current one) the navigator's, and fit it in the window.
+/// the current one) active, synchronizing the Artboard tool when in use, and fit it in the window.
 fn go_to_artboard(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> {
     let n = app.session.active().map(|d| d.doc.artboards.len()).ok_or("no document open")?;
     let last = n.checked_sub(1).ok_or("the document has no artboards")?;
@@ -1387,9 +1504,7 @@ fn go_to_artboard(app: &mut VectorcraftApp, p: &Value) -> Result<Value, String> 
         None => return Err("missing index".into()),
     }
     .min(last);
-    if let Some(v) = app.view_mut() {
-        v.artboard = to;
-    }
+    crate::panels::artboards::select(app, to);
     crate::canvas::fit(app, "view.fitArtboard");
     Ok(json!({ "index": to }))
 }
@@ -1438,6 +1553,7 @@ pub fn checked(app: &VectorcraftApp, id: &str, p: &Value) -> Option<bool> {
         "window.toolbar" => app.ui.toolbar,
         "window.toolbarAdvanced" => app.ui.toolbar_advanced,
         "window.toolbarColumns" => app.ui.toolbar_double,
+        "window.editToolbar" => app.ui.tools_drawer,
         "window.floatTools" => {
             let tool = p.get("tool").and_then(Value::as_str).unwrap_or("");
             app.ui.floating_flyouts.iter().any(|f| f.tools.iter().any(|id| id == tool))
@@ -1448,6 +1564,9 @@ pub fn checked(app: &VectorcraftApp, id: &str, p: &Value) -> Option<bool> {
             let panel = p.get("panel").and_then(Value::as_str).unwrap_or("");
             let canonical = normalize_panel(panel);
             match canonical.and_then(DockTab::from_id) {
+                _ if app.ui.docking.is_some() => canonical.is_some_and(|id| {
+                    app.ui.open_panel.as_deref() == Some(id) || app.ui.docking.as_ref().is_some_and(|layout| layout.contains(&id.to_string()))
+                }),
                 _ if canonical.is_some_and(|id| crate::floating::group_of(&app.ui, id).is_some()) => true,
                 Some(tab) if !app.ui.dock_collapsed => crate::floating::shown_tab(&app.ui) == Some(tab),
                 _ => canonical.is_some_and(|id| app.ui.open_panel.as_deref() == Some(id)),
@@ -1590,7 +1709,7 @@ pub fn display_label(app: &VectorcraftApp, id: &str, label: &str) -> String {
         "effect.last" => match &app.last_effect {
             Some((e, _)) => {
                 let name = vectorcraft_effects::effect_info(e).map(|i| i.label).unwrap_or(e.as_str());
-                fmt(tl!("Last Effect: {name}"), &[("name", tl!(name))])
+                fmt(tl!("Last Effect: {name}"), &[("name", crate::i18n::tr_id(lang, e, name))])
             }
             None => crate::i18n::tr_id(lang, id, label).to_string(),
         },
@@ -1599,6 +1718,19 @@ pub fn display_label(app: &VectorcraftApp, id: &str, label: &str) -> String {
             if shows_a_name(id, &shown) { shown } else { crate::i18n::tr_id(lang, id, &shown).to_string() }
         }
     }
+}
+
+/// The label of an Effect menu item in the UI language, by the effect's own id. Every effect item
+/// runs `effect.apply` or `effect.dialog`, so the command id can't tell them apart; an `@id` row
+/// for the effect id (for example `pathfinder.add`) wins over the plain row of the English label.
+/// `None` when the catalog has no such row, and the plain translation applies.
+fn effect_item_label(id: &str, p: &Value) -> Option<String> {
+    if !matches!(id, "effect.apply" | "effect.dialog") {
+        return None;
+    }
+    let effect = p.get("effect")?.as_str()?;
+    let shown = crate::i18n::tr_id(crate::i18n::current(), effect, "");
+    (!shown.is_empty()).then(|| shown.to_string())
 }
 
 /// Menu slots that are left out while they have nothing to show (unused saved views, recent files,
@@ -1733,7 +1865,7 @@ pub fn entry<'a>(app: &VectorcraftApp, it: &'a Item) -> Option<Entry<'a>> {
             Entry::Item(Row {
                 command: Some((id, p)),
                 source: label,
-                label: display_label(app, id, label).into(),
+                label: effect_item_label(id, p).unwrap_or_else(|| display_label(app, id, label)).into(),
                 shortcut: item_shortcut(id, p),
                 enabled,
                 checked,
@@ -1855,6 +1987,7 @@ pub fn enabled(app: &VectorcraftApp, id: &str) -> bool {
         // Save is off for a clean document that already has its own file.
         "file.save" => app.session.active().is_some_and(|d| d.path.is_none() || d.converted || d.is_dirty()),
         "type.bold" | "type.italic" => crate::panels::character::text_style(app).is_some(),
+        id if crate::panels::paragraph::ALIGN_COMMANDS.iter().any(|c| c.0 == id) => crate::panels::character::text_style(app).is_some(),
         "file.reveal" => app.services.reveal.is_some() && app.session.active().is_some_and(|d| d.path.is_some()),
         "file.place"
         | "file.export.svg"
@@ -1897,6 +2030,7 @@ pub fn enabled(app: &VectorcraftApp, id: &str) -> bool {
         "ui.dxfOptionsDialog" => app.session.active().is_some(),
         "links.editOriginal" | "links.reveal" => selected_image(app, |im| im.link.is_some()) || selected_placed(app),
         "ui.placementOptionsDialog" => selected_image(app, |_| true) || selected_placed(app),
+        "ui.findLinksInFolder" => crate::picks::can(app, &crate::picks::PickRequest::Folder) && app.session.active().is_some(),
         "ui.packageDialog" | "docInfo.save" => app.session.active().is_some(),
         "ui.epsOptionsDialog" => app.session.active().is_some(),
         "file.saveForWeb" | "file.saveForWeb.browser" => app.session.active().is_some(),
@@ -1986,7 +2120,7 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                 c("Export Selection…", "file.exportSelection"),
                 Sep,
                 c("Package…", "ui.packageDialog"),
-                sub("Scripts", vec![todos("Other Script…", "Cmd+F12")]),
+                sub("Scripts", vec![c("Check Script…", "ui.checkScript"), todos("Other Script…", "Cmd+F12")]),
                 Sep,
                 c("Document Setup…", "file.documentSetup"),
                 sub(
@@ -2077,6 +2211,9 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                         cp("Horizontal Align Left", "object.align", json!({"horizontal": "left"})),
                         cp("Horizontal Align Center", "object.align", json!({"horizontal": "center"})),
                         cp("Horizontal Align Right", "object.align", json!({"horizontal": "right"})),
+                        Sep,
+                        cp("Horizontal & Vertical Align Center", "object.align", json!({"horizontal": "center", "vertical": "center"})),
+                        Sep,
                         cp("Vertical Align Top", "object.align", json!({"vertical": "top"})),
                         cp("Vertical Align Center", "object.align", json!({"vertical": "center"})),
                         cp("Vertical Align Bottom", "object.align", json!({"vertical": "bottom"})),
@@ -2259,7 +2396,16 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                         c("Fit to Selected Art", "artboard.fitToSelection"),
                     ],
                 ),
-                sub("Graph", vec![c("Type…", "graph.setType"), c("Data…", "graph.setData"), todo("Design…"), todo("Column…"), todo("Marker…")]),
+                sub(
+                    "Graph",
+                    vec![
+                        c("Type…", "graph.setType"),
+                        c("Data…", "graph.setData"),
+                        c("Design…", "graph.design"),
+                        todo("Column…"),
+                        c("Marker…", "graph.marker"),
+                    ],
+                ),
                 sub(
                     "Collect for Export",
                     vec![
@@ -2915,18 +3061,25 @@ fn queried_dialog(id: &str) -> Option<(&'static str, &'static [&'static str])> {
 }
 
 /// The dialog (kind, fields) the menu item of command `id` opens, as the reference app's does.
-fn menu_dialog(id: &str) -> Option<(&'static str, Value)> {
+fn menu_dialog(app: &VectorcraftApp, id: &str) -> Option<(&'static str, Value)> {
     Some(match id {
         "object.move" => ("move", json!({"dx": "0 pt", "dy": "0 pt"})),
         "object.rotate" => ("rotate", json!({"angle": 0})),
         "object.scale" => ("scale", json!({"sx": 100, "sy": 100, "uniform": true})),
         "object.transformEach" => (crate::dialogs::transform_each::KIND, crate::dialogs::transform_each::fields()),
-        "object.reflect" => ("reflect", json!({"axis": "vertical"})),
+        "object.reflect" => ("reflect", json!({"axis": "vertical", "angle": 90})),
         "object.shear" => ("shear", json!({"angle": 0, "axis": "horizontal"})),
         "path.average" => ("average", json!({"axis": "both"})),
+        // Offset Path opens on the values it was last confirmed with.
+        "object.path.offsetPath" if app.ui.offset_path.is_object() => ("offsetPath", app.ui.offset_path.clone()),
         "object.path.offsetPath" => ("offsetPath", json!({"offset": "10 pt", "joins": "miter", "miterLimit": 4})),
-        "object.path.simplify" => ("simplify", json!({"tolerance": "1 pt"})),
-        "object.path.splitIntoGrid" => ("splitIntoGrid", json!({"rows": 2, "columns": 2, "gutter": "12 pt"})),
+        "object.path.simplify" => ("simplify", json!({"tolerance": "1 pt", "preview": true})),
+        "object.path.splitIntoGrid" => {
+            // The grid starts at the size of the selection.
+            let size =
+                app.session.active().and_then(|st| st.doc.bounds_of(&st.selection.objects, false)).map_or((0.0, 0.0), |b| (b.width(), b.height()));
+            ("splitIntoGrid", crate::dialogs::path_ops::split_fields(size.0, size.1))
+        }
         "object.vectorHalftone" => (crate::dialogs::halftone::KIND, crate::dialogs::halftone::fields()),
         "artboard.rearrange" => (crate::dialogs::rearrange_artboards::KIND, crate::dialogs::rearrange_artboards::fields()),
         _ => return None,
@@ -2971,8 +3124,12 @@ fn to_field(ctx: &egui::Context, field: egui::Id, e: egui::Event) {
 /// Object › Graph › Type… or Data… (`id`): its dialog, with the selected graph's current values
 /// (the command's query).
 pub(crate) fn graph_dialog(app: &mut VectorcraftApp, id: &str) -> Result<Value, String> {
+    // Graph Data: the worksheet.
+    if id == "graph.setData" {
+        return crate::dialogs::graph_data::open(app);
+    }
     let v = app.session.execute(id, &json!({})).map_err(|e| e.to_string())?;
-    let (label, fields) = if id == "graph.setData" { ("Graph Data", json!({"csv": v["csv"]})) } else { ("Graph Type", v) };
+    let (label, fields) = ("Graph Type", v);
     app.run("ui.paramDialog", json!({"command": id, "label": label, "params": fields})).map(|_| json!({ "dialog": "command" }))
 }
 
@@ -2980,7 +3137,7 @@ pub fn invoke(app: &mut VectorcraftApp, id: &str, p: Value) {
     if waits_for_ime(app, id) {
         return;
     }
-    if let Some((kind, fields)) = menu_dialog(id)
+    if let Some((kind, fields)) = menu_dialog(app, id)
         && p.as_object().is_none_or(|o| o.is_empty())
     {
         app.ui.dialog = Some(crate::state::Dialog::new(kind, fields));
@@ -3025,6 +3182,14 @@ pub fn invoke(app: &mut VectorcraftApp, id: &str, p: Value) {
     // Object → Graph → Type… / Data…: dialogs with the selected graph's current values.
     if matches!(id, "graph.setType" | "graph.setData") && p.as_object().is_none_or(|o| o.is_empty()) {
         if let Err(e) = graph_dialog(app, id) {
+            app.status(e);
+        }
+        return;
+    }
+    // Object → Graph → Design… / Marker…: the document's graph designs.
+    if matches!(id, "graph.design" | "graph.marker") && p.as_object().is_none_or(|o| o.is_empty()) {
+        let r = if id == "graph.design" { crate::dialogs::graph_design::open_design(app) } else { crate::dialogs::graph_design::open_marker(app) };
+        if let Err(e) = r {
             app.status(e);
         }
         return;
@@ -3107,6 +3272,13 @@ pub fn invoke(app: &mut VectorcraftApp, id: &str, p: Value) {
         app.open_link(id);
         return;
     }
+    // Object → Align aligns to what the align buttons align to, unless the call names `to`. With
+    // anchors selected (Direct Selection) it sends its params unchanged, and the points align to
+    // their own bounds.
+    let follows_align_to = id == "object.align"
+        && p.as_object().is_some_and(|o| !o.contains_key("to"))
+        && app.session.active().is_some_and(|st| st.selection.anchors.is_empty());
+    let p = if follows_align_to { crate::panels::align::with_align_to(app, p) } else { p };
     if let Err(e) = app.run(id, p) {
         app.status(e);
     } else if matches!(id, "object.pattern.make" | "object.pattern.edit") {
@@ -3303,7 +3475,8 @@ fn font_items(english_names: bool) -> Vec<Item> {
 
 /// The raster effects' submenus of the Effect menu (the Photoshop-style effects, below the
 /// vector effects): (submenu, the catalogue's menu path of its effects).
-const RASTER_MENUS: [(&str, &[&str]); 7] = [
+const RASTER_MENUS: [(&str, &[&str]); 8] = [
+    ("Artistic", &["Effect", "Artistic"]),
     ("Blur", &["Effect", "Blur"]),
     ("Brush Strokes", &["Effect", "Brush Strokes"]),
     ("Distort", &["Effect", "Distort"]),
@@ -3365,7 +3538,13 @@ fn effect_menu() -> Vec<Item> {
         } else {
             let mut items = items;
             if sub_name == "3D and Materials" {
-                items.extend([todo("Extrude & Bevel…"), todo("Inflate…"), todo("Rotate…"), todo("Materials…")]);
+                // In the panel's order of 3D types, then Materials (not built yet).
+                let rank = |label: &str| ["Extrude & Bevel…", "Revolve…", "Inflate…", "Rotate…"].iter().position(|l| *l == label).unwrap_or(9);
+                items.sort_by_key(|i| match i {
+                    Item::Cmd(label, ..) => rank(label),
+                    _ => 9,
+                });
+                items.push(todo("Materials…"));
             }
             out.push(sub(sub_name, items));
         }
@@ -3520,6 +3699,7 @@ pub fn menu_strings() -> std::collections::BTreeSet<String> {
     }
     out.extend(crate::prefs_dialog::UI_FIELDS.iter().map(|f| f.2.to_string()));
     out.extend(crate::dialogs::button_labels().into_iter().map(str::to_string));
+    out.extend(crate::dialogs::FILM_GRAIN_FIELDS.iter().map(|(_, label, _)| label.to_string()));
     out.extend(crate::chrome::hint_strings().into_iter().map(str::to_string));
     out.remove("");
     out
@@ -3837,6 +4017,55 @@ mod tests {
         assert_eq!(dynamic_label(&app, "view.cornerWidget", ""), "Hide Corner Widget");
         app.run("view.cornerWidget", json!({})).unwrap();
         assert_eq!(dynamic_label(&app, "view.cornerWidget", ""), "Show Corner Widget");
+    }
+
+    /// View › Precise Cursors has no menu item or default key, but the command (assignable in Keyboard Shortcuts)
+    /// writes General › Use Precise Cursors, the value the dialog and the saved preferences read.
+    #[test]
+    fn precise_cursors_command_toggles_the_preference() {
+        let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), crate::Services::default());
+        assert!(!app.session.prefs.use_precise_cursors);
+        assert_eq!(app.run("view.preciseCursors", json!({})).unwrap(), json!(true));
+        assert!(app.session.prefs.use_precise_cursors);
+        assert_eq!(app.ui.engine_prefs["usePreciseCursors"], json!(true), "saved with the UI state");
+        assert!(UI_COMMANDS.iter().any(|c| c.0 == "view.preciseCursors" && c.2.is_empty()), "assignable, no default key");
+        assert_eq!(app.run("view.preciseCursors", json!({})).unwrap(), json!(false));
+        assert!(!app.session.prefs.use_precise_cursors);
+    }
+
+    /// The command is listed in Edit › Keyboard Shortcuts without a key and takes one the user types; with the
+    /// key it is the command that runs.
+    #[test]
+    fn precise_cursors_command_is_listed_and_assignable_in_the_shortcut_editor() {
+        use crate::shortcut_editor as ed;
+        let e = ed::entry("view.preciseCursors").expect("listed in the editor");
+        assert_eq!((e.label.as_str(), e.group.as_str(), e.is_tool), ("Precise Cursors", "View", false));
+        assert_eq!(ed::default_of("view.preciseCursors"), None, "no default key");
+        let mut overrides = std::collections::BTreeMap::new();
+        assert_eq!(ed::effective_in(&overrides, "view.preciseCursors"), None);
+        assert_eq!(ed::assign(&mut overrides, "view.preciseCursors", Some("Cmd+Alt+Shift+U"), false), Ok(vec![]));
+        let chord = ed::effective_in(&overrides, "view.preciseCursors").expect("assigned");
+        assert_eq!(ed::normalize(&chord), ed::normalize("Cmd+Alt+Shift+U"));
+        // A key another command holds is refused, so the new command can't take it over silently.
+        assert!(ed::assign(&mut overrides, "view.preciseCursors", Some("Cmd+Alt+Shift+P"), false).is_err());
+        assert_eq!(ed::assign(&mut overrides, "view.preciseCursors", None, false), Ok(vec![]));
+        assert_eq!(ed::effective_in(&overrides, "view.preciseCursors"), None, "cleared again");
+    }
+
+    /// The command is a preference, not an edit: no undo step, no unsaved changes, with a document open.
+    #[test]
+    fn precise_cursors_command_is_not_an_edit() {
+        let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), crate::Services::default());
+        app.run("file.new", json!({})).unwrap();
+        let steps = |app: &VectorcraftApp| {
+            let st = app.session.active().unwrap();
+            (st.history.undo.len(), st.history.redo.len(), st.is_dirty())
+        };
+        let before = steps(&app);
+        assert!(!before.2);
+        app.run("view.preciseCursors", json!({})).unwrap();
+        assert!(app.session.prefs.use_precise_cursors);
+        assert_eq!(steps(&app), before);
     }
 
     /// Selection & Anchor Display › Zoom to Selection (#394): Zoom In and Zoom Out bring the

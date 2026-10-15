@@ -229,6 +229,14 @@ impl Tokens {
     }
 }
 
+/// Selected text in the text fields `ui` draws from here on is in the strong text colour. egui
+/// paints it in the selection stroke's colour, the accent, which is hard to read on the selection's
+/// accent tint (#1465). For fields that draw their own frame: egui's frame takes its focus ring from
+/// the same stroke.
+pub fn strong_selected_text(ui: &mut egui::Ui) {
+    ui.visuals_mut().selection.stroke.color = Tokens::get(ui.ctx()).text_strong;
+}
+
 pub const FONT_UI: &str = "ui";
 pub const FONT_UI_SEMIBOLD: &str = "ui-semibold";
 pub const FONT_MONO: &str = "mono";
@@ -302,18 +310,11 @@ pub fn apply(ctx: &egui::Context, b: Brightness) {
     v.popup_shadow = egui::epaint::Shadow { offset: [0, 4], blur: 14, spread: 0, color: Color32::from_black_alpha(if t.dark { 120 } else { 60 }) };
     v.window_shadow = egui::epaint::Shadow { offset: [0, 8], blur: 28, spread: 0, color: Color32::from_black_alpha(if t.dark { 140 } else { 70 }) };
     let w = &mut v.widgets;
-    for (wv, fill) in [
-        (&mut w.noninteractive, t.panel),
-        (&mut w.inactive, t.button),
-        (&mut w.hovered, t.hover),
-        (&mut w.active, t.tool_active),
-        (&mut w.open, t.hover),
-    ] {
-        wv.bg_fill = fill;
-        wv.weak_bg_fill = fill;
-        wv.corner_radius = t.cr();
-        wv.fg_stroke = Stroke::new(1.0, t.text);
-    }
+    craft_ui::theme::WidgetPalette { noninteractive: t.panel, inactive: t.button, hovered: t.hover, active: t.tool_active, open: t.hover }.apply_to(
+        w,
+        t.cr(),
+        Stroke::new(1.0, t.text),
+    );
     w.noninteractive.bg_stroke = Stroke::new(1.0, t.divider);
     w.inactive.bg_stroke = Stroke::NONE;
     w.hovered.bg_stroke = Stroke::new(1.0, t.input_border);
@@ -348,5 +349,16 @@ mod tests {
             assert_eq!(Brightness::parse(b.label()), Some(b));
         }
         assert!(!Tokens::for_brightness(Brightness::Light).dark);
+    }
+
+    /// #1662: a slider's rail (`button_border`, see `widgets::slider`) stands out from the panel
+    /// in every brightness.
+    #[test]
+    fn slider_rails_show_on_every_panel() {
+        for b in [Brightness::Dark, Brightness::MediumDark, Brightness::MediumLight, Brightness::Light] {
+            let t = Tokens::for_brightness(b);
+            let gap = (i32::from(t.button_border.r()) - i32::from(t.panel.r())).abs();
+            assert!(gap >= 24, "{b:?}: rail {:?} on panel {:?}", t.button_border, t.panel);
+        }
     }
 }
