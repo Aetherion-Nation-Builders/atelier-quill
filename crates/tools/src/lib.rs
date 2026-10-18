@@ -13,22 +13,26 @@ pub mod catalog;
 pub mod corners;
 pub mod cropimage;
 pub mod cut;
+pub mod dimension;
 pub mod direct;
 pub mod distort;
 pub mod draw2;
 pub mod extra;
 pub mod guides;
+pub mod intertwine;
 pub mod meshblend;
 pub mod meshedit;
 pub mod params;
 pub mod pathtype;
 pub mod pen;
+pub mod pie;
 pub mod place;
 pub mod printtiling;
 pub mod rulerguide;
 pub mod select;
 pub mod settings;
 pub mod shape;
+pub mod shaperwidget;
 pub mod slice;
 pub mod symbolism;
 pub mod text;
@@ -128,6 +132,9 @@ pub enum ToolKey {
     /// A digit key 0–9 (5 while dragging with the Perspective Selection tool moves perpendicular
     /// to the plane).
     Digit(u8),
+    /// A letter key a–z, lowercase (E while dragging a Selection or Group Selection marquee makes it
+    /// select only the objects entirely inside it, and E again switches it back).
+    Letter(char),
 }
 
 /// What a tool asks the engine to do.
@@ -399,6 +406,8 @@ pub enum Overlay {
     Line { a: Point, b: Point, color: [u8; 3], dashed: bool },
     /// An anchor square: filled = selected.
     Anchor { p: Point, color: [u8; 3], filled: bool, size: f32 },
+    /// A Curvature tool point, drawn as a circle; filled = the last touched point.
+    CurvePoint { p: Point, color: [u8; 3], filled: bool, size: f32 },
     /// A handle end circle.
     Handle { p: Point, color: [u8; 3] },
     /// Smart-guide style label (e.g. "anchor", "W: 100 pt").
@@ -425,9 +434,17 @@ pub enum Cursor {
     ResizeNwSe,
     ResizeNeSw,
     Rotate,
+    /// The rotate cursor beside a bounding box, bowed toward the pointer's side of the box: off
+    /// its centre in direction `0..8` (0 straight up, then clockwise in 45° steps). Its arc wraps
+    /// the corner it is at, so at the top right it opens toward the bottom left. Make it with
+    /// [`Cursor::rotate_about`].
+    RotateToward(u8),
     /// Over a Live Corners widget (drag to round the corners).
     CornerRadius,
+    /// The Pen with the new-path asterisk: a click starts a new path.
     Pen,
+    /// The Pen without a badge, while a path is being drawn: a click adds its next anchor.
+    PenDrawing,
     PenAdd,
     PenDelete,
     PenClose,
@@ -476,15 +493,29 @@ pub enum Cursor {
 }
 
 impl Cursor {
+    /// The rotate cursor for the pointer at `p` turning art about `center`: [`Cursor::RotateToward`]
+    /// the pointer's side of it, or the plain [`Cursor::Rotate`] on the centre itself.
+    pub fn rotate_about(center: Point, p: Point) -> Self {
+        let d = p - center;
+        if !(d.x.is_finite() && d.y.is_finite()) || d.hypot() < 1e-9 {
+            return Cursor::Rotate;
+        }
+        // y points down the page: atan2(x, -y) is 0 straight up and grows clockwise.
+        let octant = (d.x.atan2(-d.y) / std::f64::consts::FRAC_PI_4).round() as i64;
+        Cursor::RotateToward(octant.rem_euclid(8) as u8)
+    }
+
     /// General › Use Precise Cursors: the drawing tools' pointers (the Pen's in every state, the
     /// Eyedropper's, the Slice and Blend tools') become a plain crosshair at the hotspot.
     pub fn precise(self) -> Self {
         match self {
             Cursor::Pen
+            | Cursor::PenDrawing
             | Cursor::PenAdd
             | Cursor::PenDelete
             | Cursor::PenClose
             | Cursor::PenContinue
+            | Cursor::PenJoin
             | Cursor::PenConvert
             | Cursor::Eyedropper
             | Cursor::Slice
@@ -581,6 +612,7 @@ pub fn create(id: &str) -> Box<dyn Tool> {
         "directSelection" => Box::new(direct::DirectSelectionTool::new(false)),
         "groupSelection" => Box::new(direct::DirectSelectionTool::new(true)),
         "pen" => Box::new(pen::PenTool::default()),
+        "dimension" => Box::new(dimension::DimensionTool::default()),
         "type" | "areaType" | "typeOnPath" | "verticalType" | "verticalAreaType" | "verticalTypeOnPath" => Box::new(text::TypeTool::new(id)),
         "rectangle" | "roundedRectangle" | "ellipse" | "polygon" | "star" | "lineSegment" => Box::new(shape::ShapeTool::new(id)),
         // Not in the toolbar: `file.place.queue` loads it.
@@ -596,6 +628,7 @@ pub fn create(id: &str) -> Box<dyn Tool> {
             .or_else(|| printtiling::create(other))
             .or_else(|| cropimage::create(other))
             .or_else(|| cut::create(other))
+            .or_else(|| intertwine::create(other))
             .unwrap_or_else(|| Box::new(NoopTool(tool_info(other).map(|t| t.id).unwrap_or("selection")))),
     }
 }
