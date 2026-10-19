@@ -2034,7 +2034,7 @@ const RENDER_SITE_ROWS: &[(&str, &str)] = &[
     ("file-filter", "Print presets"),
     ("file-filter", "SVG Compressed"),
     ("file-filter", "PDF-compatible .ai"),
-    ("file-filter", "VectorCraft Template"),
+    ("file-filter", "Atelier Quill Template"),
     ("file-filter", "Templates"),
     ("diagnostics", "render"),
     ("diagnostics", "ui"),
