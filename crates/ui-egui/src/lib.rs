@@ -11,6 +11,10 @@
 pub const UPDATE_APP: craft_update::app::App = craft_update::app::App {
     icon_png: Some(include_bytes!("../../../assets/app-icon/hicolor/128x128/apps/ai.storyteller.vectorcraft.png")),
     accent: Some([0xe8, 0x57, 0x3f]),
+    // Atelier: our name and our releases (upstream's entry points at storytold/vectorcraft).
+    name: crate::identity::PRODUCT,
+    repo: "Aetherion-Nation-Builders/atelier-quill",
+    developer: crate::identity::VENDOR,
     ..craft_update::suite::VECTORCRAFT
 };
 

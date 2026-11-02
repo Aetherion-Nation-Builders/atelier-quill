@@ -18,10 +18,11 @@ in below the line; if the header conflicts, keep ours. For anything else, keep u
 and re-apply the rename.
 
 Workflows that are turned off in this repository, on purpose (they cost Actions minutes and
-build things we do not ship yet): `windows7.yml`, `windows-arm64.yml`. Turn one on
-from the Actions tab when it is wanted.
+build things we do not ship yet): `windows-arm64.yml` (upstream dropped `windows7.yml`). Turn it
+on from the Actions tab when it is wanted.
 
-`release.yml` builds the macOS DMG only for now, on the standard `macos-15` runner, unsigned
+`release.yml` builds the macOS DMG only for now (upstream moved its own to the shared
+`storytold/craft-common-actions` release workflow on 2026-11; we keep our in-repo jobs), on the standard `macos-15` runner, unsigned
 (`docs/releasing.md`). Its other platform jobs are kept from upstream and skipped unless named in
 the repository variable `ATELIER_RELEASE_PLATFORMS`; the DMG holds `Atelier Quill.app` on a
 `Atelier Quill` volume, with the Atelier background (`packaging/macos/dmg/`). When syncing, keep those

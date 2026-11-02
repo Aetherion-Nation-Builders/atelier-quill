@@ -410,7 +410,7 @@ fn a_browser_preview_goes_beside_a_root_that_is_not_a_folder() {
     let dir = save_for_web::preview_folder_in(&tmp, keep).unwrap();
     let dir = std::path::Path::new(&dir);
     assert!(dir.is_dir() && dir.parent() == Some(tmp.as_path()), "{}", dir.display());
-    assert!(dir.file_name().unwrap().to_string_lossy().starts_with("VectorCraft Save for Web "), "{}", dir.display());
+    assert!(dir.file_name().unwrap().to_string_lossy().starts_with("Atelier Quill Save for Web "), "{}", dir.display());
     assert_eq!(std::fs::read(&root).unwrap(), b"a file");
 }
 
@@ -427,7 +427,7 @@ fn a_browser_preview_removes_old_folders_made_beside_the_root() {
     let first = save_for_web::preview_folder_in(&tmp, hour).unwrap();
     let second = save_for_web::preview_folder_in(&tmp, hour).unwrap();
     assert!(std::path::Path::new(&first).is_dir() && std::path::Path::new(&second).is_dir(), "{first} {second}");
-    let others = ["VectorCraft Save for Web 7-7", "VectorCraft Save for Web 7-7.html", "VectorCraft Save for Web notes"];
+    let others = ["Atelier Quill Save for Web 7-7", "Atelier Quill Save for Web 7-7.html", "Atelier Quill Save for Web notes"];
     std::fs::write(tmp.join(others[0]), b"kept").unwrap();
     std::fs::write(tmp.join(others[1]), b"kept").unwrap();
     std::fs::create_dir_all(tmp.join(others[2])).unwrap();
