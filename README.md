@@ -133,6 +133,8 @@ exposes to agents, and exported by VectorCraft's own renderer. The source files 
 
 ## Quick start
 
+For posters and sewing patterns, see [Print a large poster across multiple pages](docs/print-tiling.md).
+
 ```sh
 git clone https://github.com/storytold/vectorcraft
 cd vectorcraft
@@ -147,6 +149,8 @@ cargo xtask bundle                                        # dist/VectorCraft.app
 cd apps/vectorcraft-web && trunk build --release            # web build → dist/web
 cargo xtask ci                                            # fmt, clippy, tests, layering, wasm, vendor names
 ```
+
+For text and custom letter shapes, see [Typography and Custom Lettering](docs/typography-lettering.md).
 
 Japanese fonts come from [storytold/craft-fonts](https://github.com/storytold/craft-fonts), an optional
 build input (releases always use it): `CRAFT_FONTS_DIR="$PWD/../craft-fonts" cargo run --release -p vectorcraft` (an absolute path).
@@ -164,11 +168,11 @@ drag-and-drop, set **Preferences › Performance › Linux Display Server** to *
 the app with `WAYLAND_DISPLAY= vectorcraft`: the window then opens through XWayland, where drops work
 (see [`docs/development.md`](docs/development.md#linux-wayland-and-x11)).
 
-On Linux with Wayland, under KDE Plasma 6.3 or later and under GNOME, VectorCraft doesn't respond to a drawing tablet's
-pen yet (#491, #2028). Open the window through XWayland instead, where the pen works as a mouse: set the same
-preference to **X11 (XWayland)**, or to **X11 (XWayland) When a Pen Is Attached** to use XWayland only when a pen is
-attached as VectorCraft starts, and restart; or start the app with `WAYLAND_DISPLAY= vectorcraft` (see
-[`docs/development.md`](docs/development.md#linux-wayland-and-x11)).
+On Linux with Wayland, under KDE Plasma 6.3 or later and under GNOME, VectorCraft can't get a drawing tablet's pen
+input on native Wayland yet (#491, #2028). When a pen is attached as VectorCraft starts, the window opens through
+XWayland, where the pen works as a mouse and the app reads its pressure (#4967; `VECTORCRAFT_NATIVE_WAYLAND=1` keeps
+Wayland). For a pen attached later, set the same preference to **X11 (XWayland)** and restart, or start the app with
+`WAYLAND_DISPLAY= vectorcraft` (see [`docs/development.md`](docs/development.md#linux-wayland-and-x11)).
 
 ### Use it from Claude Code and other agents
 
@@ -186,8 +190,6 @@ claude mcp add vectorcraft -- /path/to/vectorcraft-cli mcp --automation-read-roo
 
 The details are in [`docs/mcp.md`](docs/mcp.md) and [`docs/control-protocol.md`](docs/control-protocol.md).
 
-For the experimental, unsupported 64-bit Windows 7 build, see [Windows 7 instructions](docs/windows7.md).
-
 ## Status
 
 VectorCraft is under active development. [**ROADMAP.md**](ROADMAP.md) has the stage, the numbers by dimension
@@ -201,13 +203,14 @@ Pathfinder and Shape Builder, paint, gradients, appearance and transparency, typ
 files (SVG, PDF and PDF-compatible `.ai` with PDF/X, legacy version 7 `.ai` keeping layers, groups and type, EPS, DXF, EMF/WMF, raster formats, PSD out and PSD/PSB in as their merged image, Print, Package).
 Affinity documents (`.af` from Affinity 3, `.afdesign`, `.afpub` and, by their content, `.afphoto` from Affinity 1 and 2) open
 and place natively: layers, groups, artboards and pages, curves and shapes, fills, gradients and strokes, clipping
-and masks, text and images, with what didn't come in (effects, adjustments, brushes, master pages…) listed in the
-import warning; a file whose native data can't be read opens as its embedded preview, saying why. VectorCraft
+and masks, text with each paragraph's indents, spacing and leading, tables (as text frames and lines), master
+pages, shadows, glows, outlines and overlays, embedded Affinity documents and images, with what didn't come in
+(adjustments, blurs, bevels, brushes…) listed in the import warning; a file whose native data can't be read opens as its embedded preview, saying why. VectorCraft
 doesn't write Affinity files. Current `.af` validation includes 33 pinned files, native save/reload
 and every-board SVG/PDF/PSD export, with fixes for Affinity 3 artboards, source-backed JPEGs and text runs.
 [Scope and limits](crates/affinity/README.md); [source audit and remaining gaps](docs/affinity-validation.md).
 The interface
-speaks English, German, Japanese, Korean, Vietnamese, Traditional and Simplified Chinese, Spanish, French, Hungarian, Italian, Polish, Brazilian Portuguese, Russian, Swedish, Ukrainian, Finnish, Bulgarian, Greek, Czech and Georgian;
+speaks English, German, Japanese, Korean, Vietnamese, Traditional and Simplified Chinese, Spanish, French, Hungarian, Italian, Polish, Brazilian Portuguese, Russian, Swedish, Ukrainian, Finnish, Bulgarian, Greek, Czech, Georgian and Catalan;
 [localization-parity.md](docs/localization-parity.md) has the details.
 The scores are self-assessed from our code against public documentation;
 [target-app-parity.md](docs/target-app-parity.md#how-this-was-measured-2026-10-10) explains how far to trust them.
@@ -216,7 +219,7 @@ The scores are self-assessed from our code against public documentation;
 - reliable exchange of .ai files (layer structure in real files; proprietary editing data isn't written);
 - an interaction-fidelity pass covering every tool's modifiers and small behaviours;
 - 3D and Materials beyond the initial live Revolve (Extrude & Bevel, Inflate, Rotate, materials);
-- about half of the raster effects (24 of 57 still missing; Cutout, Film Grain, Neon Glow and Poster Edges are available under Artistic, Halftone Pattern under Sketch) and the Effect Gallery;
+- filter thumbnails and a preview area inside the Effect Gallery (the gallery itself and all 57 Photoshop-style raster filters, approximated, are in);
 - CJK composition for vertical type (vertical type itself has initial support, with a Japanese interface);
 - scripting, and the rest of Variables (image and graph kinds, dataset import);
 - generative AI features.

@@ -4,7 +4,7 @@
 
 use serde_json::{Value, json};
 
-use super::*;
+use super::{CommandSpec, Result, always, cmd};
 
 /// The app's id in its web address and repository name.
 pub const APP_ID: &str = "quill";
@@ -42,6 +42,7 @@ fn url(u: String) -> Result<Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Session;
 
     #[test]
     fn links() {
