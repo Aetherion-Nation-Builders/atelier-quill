@@ -12,7 +12,10 @@
 //!   (YYYYMMDD), `<time>` (hhmmss), `<YYYY>`, `<MM>`, `<DD>`, `<hh>`, `<mm>`, `<ss>`.
 //!
 //! A trailing `.ext` (or `.<ext>`, `.<format>`) is dropped: the extension comes from the format.
-//! Anything that could start a folder (`/`, `\`, `:`) becomes `-`.
+//! The characters Windows does not allow in a file name (`/`, `\`, `:`, `<`, `>`, `"`, `|`, `?`,
+//! `*` and control characters) become `-`, in the template's text and in what the tokens put in.
+
+use super::screens::file_part;
 
 /// What a template's tokens stand for, for one file.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -50,11 +53,6 @@ fn token(name: &str, p: &NameParts<'_>) -> Option<String> {
     })
 }
 
-/// Text with `/`, `\` and `:` turned into `-`, so it can't start a folder.
-fn clean(s: &str) -> String {
-    s.chars().map(|c| if matches!(c, '/' | '\\' | ':') { '-' } else { c }).collect()
-}
-
 /// Does `template` place the row's suffix itself (so it isn't added at the end)?
 pub fn has_suffix_token(template: &str) -> bool {
     template.contains("<suffix>")
@@ -72,12 +70,12 @@ pub fn render(template: &str, p: &NameParts<'_>) -> String {
     let mut out = String::with_capacity(t.len() + 16);
     let mut rest = t;
     while let Some(c) = rest.chars().next() {
-        // Bracketed tokens; an unknown one stays as written.
+        // Bracketed tokens; an unknown one stays as written, with `-` for its brackets.
         if c == '<'
             && let Some(end) = rest.find('>')
             && let Some(value) = rest.get(1..end).and_then(|name| token(name, p))
         {
-            out.push_str(&clean(&value));
+            out.push_str(&value);
             rest = rest.get(end + 1..).unwrap_or("");
             continue;
         }
@@ -94,21 +92,27 @@ pub fn render(template: &str, p: &NameParts<'_>) -> String {
             rest = rest.get(pat.len()..).unwrap_or("");
             continue;
         }
-        out.push(if matches!(c, '/' | '\\' | ':') { '-' } else { c });
+        out.push(c);
         rest = rest.get(c.len_utf8()..).unwrap_or("");
     }
-    out.trim().to_string()
+    file_part(out.trim())
 }
 
 /// `YYYY-MM-DD` (or `YYYYMMDD`) as `[year, month, day, 0, 0, 0]`; `None` when it isn't a date.
 pub fn parse_date(s: &str) -> Option<[i64; 6]> {
-    let digits: String = s.trim().chars().filter(|c| *c != '-').collect();
+    let s = s.trim();
+    let digits: String = match s.len() {
+        8 => s.to_string(),
+        10 if s.as_bytes()[4] == b'-' && s.as_bytes()[7] == b'-' => s.chars().filter(|c| *c != '-').collect(),
+        _ => return None,
+    };
     if digits.len() != 8 || !digits.bytes().all(|b| b.is_ascii_digit()) {
         return None;
     }
     let num = |a: usize, b: usize| digits.get(a..b).and_then(|t| t.parse::<i64>().ok());
     let (y, m, d) = (num(0, 4)?, num(4, 6)?, num(6, 8)?);
-    ((1..=12).contains(&m) && (1..=31).contains(&d)).then_some([y, m, d, 0, 0, 0])
+    chrono::NaiveDate::from_ymd_opt(i32::try_from(y).ok()?, u32::try_from(m).ok()?, u32::try_from(d).ok()?)?;
+    Some([y, m, d, 0, 0, 0])
 }
 
 #[cfg(test)]
@@ -133,7 +137,7 @@ mod tests {
         assert_eq!(render("YYYY-MM-DD YYYY", &p), "2026-10-16 2026");
         // Words are left alone: only the date patterns and bracketed tokens are replaced.
         assert_eq!(render("SUMMER-DD-MM", &p), "SUMMER-DD-MM");
-        assert_eq!(render("<unknown>-x", &p), "<unknown>-x");
+        assert_eq!(render("<unknown>-x", &p), "-unknown--x");
         assert_eq!(render("logo.<format>", &p), "logo", "the extension comes from the format");
         assert!(has_suffix_token("a<suffix>") && !has_suffix_token("a"));
     }
@@ -143,9 +147,20 @@ mod tests {
         let p = NameParts { name: "../../etc", ..parts() };
         let n = render("a/b\\c:<name>", &p);
         assert!(!n.contains('/') && !n.contains('\\') && !n.contains(':'), "{n}");
+        // Nor any other character Windows does not allow in a file name, typed or put in.
+        let p = NameParts { name: "<a>\"b|c?d*\u{0}\u{1f}", ..parts() };
+        assert_eq!(render("<name>|?*\u{1}", &p), "-a--b-c-d-------");
         // A long counter is padded, a short run is not cut.
         assert_eq!(render("########", &NameParts { counter: 123, ..parts() }), "00000123");
         assert_eq!(render("#", &NameParts { counter: 12345, ..parts() }), "12345");
+    }
+
+    #[test]
+    fn dates_are_strict_about_hyphens_and_days() {
+        for bad in ["2026-1-011", "2-0-2-6-1-0-1-6", "2026--10--16", "2026-02-31", "2026-10-16-", "202610-16"] {
+            assert_eq!(parse_date(bad), None, "{bad}");
+        }
+        assert_eq!(parse_date("2024-02-29"), Some([2024, 2, 29, 0, 0, 0]));
     }
 
     #[test]
