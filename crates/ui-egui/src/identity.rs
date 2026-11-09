@@ -14,18 +14,26 @@ pub const SUITE: &str = "Atelier";
 pub const VENDOR: &str = "Aetherion Nation";
 /// The upstream project this app is built on, as named in its own strings and catalogs.
 pub const UPSTREAM: &str = "VectorCraft";
+/// The upstream name as some catalogs spell it out in their own script (Hindi writes it in
+/// Devanagari, two ways); [`rewrite`] replaces these too.
+const UPSTREAM_SPELLED: [&str; 2] = ["वेक्टर क्रेफ्ट", "वेक्टर क्राफ्ट"];
 
 /// Rewrites an upstream string so it names this product. Applied to every translation catalog
 /// entry as it is read, so the UI follows the brand in every language without editing the
 /// catalogs (which would make every upstream catalog change a merge conflict).
 pub fn rewrite(s: &str) -> String {
     // "a VectorCraft file" reads "an Atelier Quill file".
-    s.replace(&format!(" a {UPSTREAM}"), &format!(" an {PRODUCT}")).replace(UPSTREAM, PRODUCT)
+    let s = s.replace(&format!(" a {UPSTREAM}"), &format!(" an {PRODUCT}")).replace(UPSTREAM, PRODUCT);
+    UPSTREAM_SPELLED.iter().fold(s, |s, spelled| s.replace(spelled, PRODUCT))
 }
 
 /// Like [`rewrite`], borrowing when there is nothing to change (the common case).
 pub fn rewrite_cow(s: &str) -> std::borrow::Cow<'_, str> {
-    if s.contains(UPSTREAM) { std::borrow::Cow::Owned(rewrite(s)) } else { std::borrow::Cow::Borrowed(s) }
+    if s.contains(UPSTREAM) || UPSTREAM_SPELLED.iter().any(|w| s.contains(w)) {
+        std::borrow::Cow::Owned(rewrite(s))
+    } else {
+        std::borrow::Cow::Borrowed(s)
+    }
 }
 
 /// Upstream strings the brand layer retires: anything naming the upstream community and site.
@@ -70,6 +78,9 @@ mod tests {
         assert_eq!(rewrite("Illustrator"), "Illustrator");
         assert_eq!(rewrite("DrawCraft"), "DrawCraft");
         assert_eq!(rewrite("not a VectorCraft file"), "not an Atelier Quill file");
+        assert_eq!(rewrite("वेक्टर क्रेफ्ट अपडेट"), "Atelier Quill अपडेट");
+        assert_eq!(rewrite("वेक्टर क्राफ्ट टेम्पलेट"), "Atelier Quill टेम्पलेट");
+        assert_eq!(rewrite("ग्रेडिएंट वेक्टर"), "ग्रेडिएंट वेक्टर");
         assert!(retired("Join Our Discord") && retired("ArtCraft Website") && retired("VectorCraft on getartcraft.com"));
         assert!(!retired("Join the Nation") && !retired("Save As…"));
     }

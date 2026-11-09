@@ -1348,7 +1348,7 @@ pub const UI_COMMANDS: &[(&str, &str, &str, &str)] = &[
         crate::panels::actions::PLAYBACK_OPTIONS,
         "Playback Options",
         "",
-        "{speed?: accelerated|step|pause, seconds?: 1-60} set how the Actions panel plays actions: accelerated (the default) plays every step at once, step plays one step at a time and draws the window after each, and pause waits seconds (a whole number, 1 to 60, VectorCraft's own range) between steps. A param left out keeps its value; the setting is kept with the UI preferences. Any other speed or seconds is an error and changes nothing. The panel menu's Playback Options… (dialog `actionPlayback` with speed and seconds) runs this on OK → {speed, seconds}",
+        "{speed?: accelerated|step|pause, seconds?: 1-60} set how the Actions panel plays actions: accelerated (the default) plays every step at once, step plays one step at a time and draws the window after each, and pause waits seconds (a whole number, 1 to 60, Atelier Quill's own range) between steps. A param left out keeps its value; the setting is kept with the UI preferences. Any other speed or seconds is an error and changes nothing. The panel menu's Playback Options… (dialog `actionPlayback` with speed and seconds) runs this on OK → {speed, seconds}",
     ),
     (
         crate::panels::actions::START_RECORDING,

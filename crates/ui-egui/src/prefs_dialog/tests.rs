@@ -324,8 +324,8 @@ fn app_title_bar_preference_shows_and_persists() {
     let mut shown = vec![];
     out.shapes.iter().for_each(|c| texts(&c.shape, &mut shown));
     let supported = cfg!(not(any(target_arch = "wasm32", target_os = "macos", target_os = "windows")));
-    assert_eq!(shown.iter().any(|t| t == "VectorCraft Title Bar on Every Desktop"), supported, "{shown:?}");
-    let notes = shown.iter().filter(|t| *t == "Applies the next time VectorCraft starts.").count();
+    assert_eq!(shown.iter().any(|t| t == "Atelier Quill Title Bar on Every Desktop"), supported, "{shown:?}");
+    let notes = shown.iter().filter(|t| *t == "Applies the next time Atelier Quill starts.").count();
     assert_eq!(notes, usize::from(cfg!(all(not(target_arch = "wasm32"), not(target_os = "macos")))), "{shown:?}");
     a.ui.dialog.as_mut().unwrap().fields.insert("appTitleBar".into(), json!(true));
     confirm(&mut a).unwrap();
@@ -349,7 +349,7 @@ fn app_title_bar_is_dimmed_while_something_takes_precedence() {
     }
     let note = "The VECTORCRAFT_TITLEBAR environment variable chooses the title bar while it is set.";
     let system_note = "System Title Bar takes precedence over this option while it is on.";
-    let restart_note = "Applies the next time VectorCraft starts.";
+    let restart_note = "Applies the next time Atelier Quill starts.";
     let supported = cfg!(not(any(target_arch = "wasm32", target_os = "macos", target_os = "windows")));
     for (from_env, system) in [(false, false), (true, false), (false, true), (true, true)] {
         let mut a = app();
@@ -372,7 +372,7 @@ fn app_title_bar_is_dimmed_while_something_takes_precedence() {
         assert_eq!(shown.iter().filter(|t| *t == restart_note).count(), usize::from(restart_shown), "{shown:?}");
         // A click on the checkbox's label turns the preference on only when nothing takes precedence.
         let label = out.shapes.iter().find_map(|c| match &c.shape {
-            egui::Shape::Text(t) if t.galley.text() == "VectorCraft Title Bar on Every Desktop" => Some(t.visual_bounding_rect()),
+            egui::Shape::Text(t) if t.galley.text() == "Atelier Quill Title Bar on Every Desktop" => Some(t.visual_bounding_rect()),
             _ => None,
         });
         assert_eq!(label.is_some(), supported);

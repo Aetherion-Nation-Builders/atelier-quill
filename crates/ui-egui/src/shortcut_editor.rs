@@ -1037,7 +1037,7 @@ pub fn run_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<Resu
             };
             let text = export_text(&app.ui.shortcut_set, &app.ui.shortcut_overrides);
             let pick =
-                crate::FilePick { filters: vec![crate::FilePick::filter("Text", &["txt"])], ..crate::FilePick::named("VectorCraft Shortcuts.txt") };
+                crate::FilePick { filters: vec![crate::FilePick::filter("Text", &["txt"])], ..crate::FilePick::named("Atelier Quill Shortcuts.txt") };
             match path.or_else(|| crate::picks::save(app, &pick)) {
                 Some(path) => match app.services.write.as_mut() {
                     Some(w) => w(&path, text.as_bytes()).map(|_| json!({"path": path})),
@@ -1046,7 +1046,7 @@ pub fn run_command(app: &mut VectorcraftApp, id: &str, p: &Value) -> Option<Resu
                 // Its save dialog is open: the file is written when it answers.
                 None if app.file_dialog_open() => Err("cancelled".into()),
                 None => match app.services.download.as_mut() {
-                    Some(dl) => dl("VectorCraft Shortcuts.txt", text.as_bytes()).map(|()| Value::Null),
+                    Some(dl) => dl("Atelier Quill Shortcuts.txt", text.as_bytes()).map(|()| Value::Null),
                     None => Ok(json!({"text": text})),
                 },
             }
@@ -1766,7 +1766,7 @@ mod tests {
         let mut ov = Overrides::new();
         crate::keymap::set_override(&mut ov, "edit.preferences", "Ctrl+Alt+Shift+9");
         let (text, km, tool_rows, menu_rows) = with_steady_plugins(|| {
-            let text = export_text("VectorCraft Defaults", &ov);
+            let text = export_text("Atelier Quill Defaults", &ov);
             let km = keymap_with(&ov);
             let names = |tools: bool| -> Vec<String> {
                 entries()
@@ -1779,7 +1779,7 @@ mod tests {
             (text, km, rows.0, rows.1)
         });
         let lines: Vec<&str> = text.lines().collect();
-        assert_eq!(lines[..4], ["Keyboard Shortcuts", "Set: VectorCraft Defaults", "", "Tools"]);
+        assert_eq!(lines[..4], ["Keyboard Shortcuts", "Set: Atelier Quill Defaults", "", "Tools"]);
         let menu_at = lines.iter().position(|l| *l == "Menu Commands").expect("a Menu Commands section");
         assert_eq!(lines[menu_at - 1], "", "a blank line before Menu Commands");
         let names_of = |rows: &[&str]| -> Vec<String> { rows.iter().map(|l| format!("{}\t", l.split('\t').next().unwrap_or_default())).collect() };

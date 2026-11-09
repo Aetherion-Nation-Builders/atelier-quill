@@ -131,7 +131,7 @@ pub fn take_for_frame(safe_mode: bool, launch: impl FnOnce(&[String]) -> io::Res
     match launch(&files) {
         Ok(()) => Vec::new(),
         Err(e) => {
-            log::warn!("couldn't start VectorCraft with plug-ins for the files another launch opened: {e}");
+            log::warn!("couldn't start Atelier Quill with plug-ins for the files another launch opened: {e}");
             files
         }
     }
