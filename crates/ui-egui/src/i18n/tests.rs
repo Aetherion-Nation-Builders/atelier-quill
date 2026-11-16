@@ -127,7 +127,8 @@ fn hindi_rows_use_one_term_for_a_variable_and_for_joining_paths() {
     assert_eq!(tr(hi, "Close or Join"), "बंद करें या जोड़ें");
     assert_eq!(message(hi, "join needs open paths"), "जोड़ने के लिए खुले पाथ चाहिए");
     assert_eq!(message(hi, "Join: a subpath went missing"), "जोड़ते समय एक सबपाथ नहीं मिला");
-    assert_eq!(tr(hi, "Join our Discord"), "हमारे डिसकॉर्ड में शामिल हों");
+    // Atelier: the upstream Discord row is retired (`identity::retired`); our own row replaces it.
+    assert_eq!(tr(hi, "Join the Nation"), "नेशन से जुड़ें");
 }
 
 /// Hindi messages and labels keep the condition, quantity and clauses of their English.

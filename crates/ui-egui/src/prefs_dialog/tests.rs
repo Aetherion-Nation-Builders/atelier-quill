@@ -684,7 +684,7 @@ fn system_title_bar_says_when_the_desktop_keeps_the_frame() {
             _ => {}
         }
     }
-    let note = "This desktop draws the window's title bar with this option on or off while VectorCraft Title Bar on Every Desktop is off.";
+    let note = "This desktop draws the window's title bar with this option on or off while Atelier Quill Title Bar on Every Desktop is off.";
     let supported = cfg!(not(any(target_arch = "wasm32", target_os = "macos", target_os = "windows")));
     for keeps in [false, true] {
         for from_env in [false, true] {
@@ -1233,7 +1233,7 @@ fn app_with_file_dialogs(path: &str) -> VectorcraftApp {
 #[test]
 fn export_and_import_preferences_buttons_round_trip() {
     let dir = temp_folder("prefs-file");
-    let path = dir.join("VectorCraft Preferences.json").to_string_lossy().into_owned();
+    let path = dir.join("Atelier Quill Preferences.json").to_string_lossy().into_owned();
     let mut a = app_with_file_dialogs(&path);
     a.run("file.new", json!({"width": 400, "height": 400})).unwrap();
     a.run("document.setUnits", json!({"units": "Millimeters"})).unwrap();

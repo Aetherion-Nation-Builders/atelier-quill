@@ -61,7 +61,7 @@ const fn command(text: &'static str, id: &'static str) -> Step {
 pub const SKILLS: &[Skill] = &[
     Skill {
         id: "essentials",
-        title: "Best of VectorCraft",
+        title: "Best of Atelier Quill",
         tutorials: &[
             Tutorial {
                 id: "draw-and-color",

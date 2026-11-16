@@ -624,7 +624,7 @@ fn category_fields(ui: &mut egui::Ui, app: &mut VectorcraftApp, d: &mut Dialog, 
                     // option on or off until VectorCraft Title Bar on Every Desktop is turned on.
                     if APP_TITLE_BAR_SHOWN && d.bool("__desktopKeepsFrame") && !d.bool("__titlebarFromEnv") && !d.bool("appTitleBar") {
                         let note = tl!(
-                            "This desktop draws the window's title bar with this option on or off while VectorCraft Title Bar on Every Desktop is off."
+                            "This desktop draws the window's title bar with this option on or off while Atelier Quill Title Bar on Every Desktop is off."
                         );
                         ui.label(egui::RichText::new(note).color(t.text_dim).size(11.0));
                     }
@@ -797,7 +797,7 @@ fn choose_folder(app: &mut VectorcraftApp, d: &mut Dialog, key: &'static str) {
 }
 
 /// The file name Export Preferences… suggests.
-const PREFS_FILE_NAME: &str = "VectorCraft Preferences.json";
+const PREFS_FILE_NAME: &str = "Atelier Quill Preferences.json";
 
 /// Export Preferences…: the applied preferences (`prefs.export`) go to a file picked in a save
 /// dialog (the web downloads it). Changes in the dialog not yet applied with OK are not in it.
