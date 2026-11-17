@@ -161,6 +161,100 @@ fn spot_alternates_and_device_n_gradient_inks_are_written_as_the_document_holds_
     assert!(text.contains("/C0[0 0 0.75]/C1[0.75 0.04 0]"), "the stops' C75, K4 and 75% Gold are written as they are");
 }
 
+#[test]
+fn blend_steps_between_spot_gradients_with_process_plates_print_both_inks() {
+    let stop = |offset: f32, tint: f32, plates: Option<[f32; 4]>| {
+        let mut s = GradientStop::new(offset, Color::cmyk(0.0, 0.2, 0.8, 0.1).tinted(tint));
+        s.swatch = Some("Gold".into());
+        s.tint = tint;
+        s.plates = plates;
+        s
+    };
+    let gradient = |tint: f32, plates: Option<[f32; 4]>| {
+        Paint::Gradient(Box::new(GradientPaint::new(Gradient::new(GradientKind::Linear, vec![stop(0.0, tint, plates), stop(1.0, tint, plates)]))))
+    };
+    let step_pdf = |a: &Paint, b: &Paint| {
+        let mut d = doc(ColorMode::Cmyk, &[]);
+        d.swatches.push(Swatch { name: "Gold".into(), paint: Paint::solid(Color::cmyk(0.0, 0.2, 0.8, 0.1)), global: true, spot: true });
+        let step = vectorcraft_doc::blend::lerp_paint(a, b, 0.5);
+        let l = d.layers[0].id;
+        let n = Node::path(d.alloc_id(), shapes::rectangle(Rect::new(10.0, 10.0, 110.0, 30.0)), Appearance::basic(step, Paint::None, 0.0));
+        d.insert(Some(l), 0, n).unwrap();
+        String::from_utf8_lossy(&export(&d, &PdfOptions::uncompressed()).unwrap()).into_owned()
+    };
+    // The middle step prints 60% Gold over 30% Cyan, in one DeviceN shading of both inks.
+    let text = step_pdf(&gradient(0.2, Some([0.2, 0.0, 0.0, 0.0])), &gradient(1.0, Some([0.4, 0.0, 0.0, 0.0])));
+    assert!(text.contains("[/DeviceN[/Cyan/Gold]"), "{text}");
+    assert!(text.contains("/C0[0.3 0.6]/C1[0.3 0.6]"), "{text}");
+    // Without plates the step is a Separation shading of Gold alone.
+    let text = step_pdf(&gradient(0.2, None), &gradient(1.0, None));
+    assert!(!text.contains("/DeviceN") && text.contains("[/Separation/Gold/"), "{text}");
+}
+
+/// A spot swatch's Separation space with alternate C0 M20 Y80 K10 under `colorant` (a PDF name).
+fn gold_separation(colorant: &str) -> String {
+    format!("[/Separation{colorant}/DeviceCMYK<</FunctionType 2/Domain[0 1]/Range[0 1 0 1 0 1 0 1]/C0[0 0 0 0]/C1[0 0.2 0.8 0.1]/N 1>>]")
+}
+
+#[test]
+fn spot_inks_named_all_or_none_are_written_under_names_of_their_own() {
+    let solid = |name: &str, color: Color| Paint::Solid { color, swatch: Some(name.into()), tint: 0.5 };
+    let gold = Color::cmyk(0.0, 0.2, 0.8, 0.1);
+    let rect = |d: &mut Document, i: usize, y: f64, paint: Paint, stroke: Paint| {
+        let l = d.layers[0].id;
+        let n = Node::path(d.alloc_id(), shapes::rectangle(Rect::new(10.0, y, 140.0, y + 20.0)), Appearance::basic(paint, stroke, 1.0));
+        d.insert(Some(l), i, n).unwrap();
+    };
+    let stop = |offset: f32, ink: &str, tint: f32| {
+        let mut s = GradientStop::new(offset, gold.tinted(tint));
+        s.swatch = Some(ink.into());
+        s.tint = tint;
+        s
+    };
+    let gradient = |stops| Paint::Gradient(Box::new(GradientPaint::new(Gradient::new(GradientKind::Linear, stops))));
+    for (name, colorant) in [("All", "/All#20Spot"), ("None", "/None#20Spot")] {
+        let mut d = doc(ColorMode::Cmyk, &[]);
+        for ink in [name, "Gold"] {
+            d.swatches.push(Swatch { name: ink.into(), paint: Paint::solid(gold), global: true, spot: true });
+        }
+        // A fill of the spot ink with a Registration stroke, a gradient of the spot ink's tints,
+        // and a gradient from Gold to the spot ink.
+        let registration = solid(vectorcraft_color::swatch::REGISTRATION, Color::cmyk(1.0, 1.0, 1.0, 1.0));
+        rect(&mut d, 0, 10.0, solid(name, gold), registration);
+        rect(&mut d, 1, 40.0, gradient(vec![stop(0.0, name, 1.0), stop(1.0, name, 0.25)]), Paint::None);
+        rect(&mut d, 2, 70.0, gradient(vec![stop(0.0, "Gold", 1.0), stop(1.0, name, 1.0)]), Paint::None);
+        let text = String::from_utf8_lossy(&export(&d, &PdfOptions::uncompressed()).unwrap()).into_owned();
+        let spaces = text.matches(&format!("[/Separation{colorant}/")).count();
+        assert!(spaces > 0 && text.matches(&gold_separation(colorant)).count() == spaces, "{name}: {text}");
+        assert!(!text.contains(&gold_separation(&format!("/{name}"))), "{name} is not the colorant: {text}");
+        assert!(text.contains("[/Separation/All/DeviceCMYK<<"), "Registration prints on every plate: {text}");
+        assert!(text.contains(&format!("[/DeviceN[/Gold{colorant}]")), "{name}: {text}");
+    }
+
+    // A spot swatch already named All Spot keeps its name, and All is numbered past it.
+    let mut d = doc(ColorMode::Cmyk, &[]);
+    for name in ["All", "All Spot"] {
+        d.swatches.push(Swatch { name: name.into(), paint: Paint::solid(gold), global: true, spot: true });
+    }
+    rect(&mut d, 0, 10.0, solid("All", gold), solid("All Spot", gold));
+    let text = String::from_utf8_lossy(&export(&d, &PdfOptions::uncompressed()).unwrap()).into_owned();
+    assert!(text.contains(&gold_separation("/All#20Spot#202")) && text.contains(&gold_separation("/All#20Spot")), "{text}");
+}
+
+#[test]
+fn a_lab_spot_ink_named_all_keeps_its_lab_alternate() {
+    let mut d = doc(ColorMode::Cmyk, &[]);
+    let lab = Color::Lab { l: 60.0, a: 40.0, b: 50.0 };
+    d.swatches.push(Swatch { name: "All".into(), paint: Paint::solid(lab), global: true, spot: true });
+    let fill = Paint::Solid { color: lab, swatch: Some("All".into()), tint: 1.0 };
+    let l = d.layers[0].id;
+    let n = Node::path(d.alloc_id(), shapes::rectangle(Rect::new(10.0, 40.0, 30.0, 60.0)), Appearance::basic(fill, Paint::None, 0.0));
+    d.insert(Some(l), 0, n).unwrap();
+    let text = String::from_utf8_lossy(&export(&d, &PdfOptions::uncompressed()).unwrap()).into_owned();
+    assert!(text.contains("[/Separation/All#20Spot[/Lab<<"), "{text}");
+    assert!(!text.contains("[/Separation/All/") && !text.contains("[/Separation/All["), "{text}");
+}
+
 /// The uncompressed PDF of a CMYK document whose rectangle is filled with gradient `stops`
 /// (Perceptual when `perceptual`), with spot swatch "Gold" (C0 M20 Y80 K10).
 fn gold_gradient_pdf(stops: Vec<GradientStop>, perceptual: bool) -> String {
@@ -212,6 +306,60 @@ fn spot_gradients_keep_a_trace_of_process_ink_at_a_light_stop() {
             assert!(text.contains("[/DeviceN[/Black/Gold]"), "{light:?}, perceptual {perceptual}: K 0.1% is ink, not paper");
         }
     }
+}
+
+/// [`gold_gradient_pdf`] with spot swatch "Leaf" (C100 Y100) in the document too.
+fn gold_and_leaf_gradient_pdf(stops: Vec<GradientStop>, perceptual: bool) -> String {
+    let mut d = doc(ColorMode::Cmyk, &[]);
+    d.swatches.push(Swatch { name: "Gold".into(), paint: Paint::solid(Color::cmyk(0.0, 0.2, 0.8, 0.1)), global: true, spot: true });
+    d.swatches.push(Swatch { name: "Leaf".into(), paint: Paint::solid(Color::cmyk(1.0, 0.0, 1.0, 0.0)), global: true, spot: true });
+    let mut g = Gradient::new(GradientKind::Linear, stops);
+    if perceptual {
+        g.method = GradientMethod::Perceptual;
+    }
+    let paint = Paint::Gradient(Box::new(GradientPaint::new(g)));
+    let l = d.layers[0].id;
+    let n = Node::path(d.alloc_id(), shapes::rectangle(Rect::new(10.0, 10.0, 110.0, 30.0)), Appearance::basic(paint, Paint::None, 0.0));
+    d.insert(Some(l), 0, n).unwrap();
+    String::from_utf8_lossy(&export(&d, &PdfOptions::uncompressed()).unwrap()).into_owned()
+}
+
+#[test]
+fn gradients_name_only_the_spot_inks_of_stops_that_color_what_draws() {
+    let black = |offset: f32, opacity: f32| GradientStop { opacity, ..GradientStop::new(offset, Color::cmyk(0.0, 0.0, 0.0, 1.0)) };
+    let paper = |offset: f32| GradientStop::new(offset, Color::cmyk(0.0, 0.0, 0.0, 0.0));
+    let leaf = |offset: f32, tint: f32| {
+        let mut s = GradientStop::new(offset, Color::cmyk(1.0, 0.0, 1.0, 0.0).tinted(tint));
+        s.swatch = Some("Leaf".into());
+        s.tint = tint;
+        s
+    };
+    let clear_gold = GradientStop { opacity: 0.0, ..gold_stop(0.4, 1.0) };
+    for perceptual in [false, true] {
+        // Gold in a stretch where every stop is clear, and Gold out of order, where the stops at 0
+        // and 0.8 cover the stretches next to it: Gold colors nothing, so no Gold plate.
+        let clear = vec![black(0.0, 1.0), black(0.2, 0.0), clear_gold.clone(), black(0.6, 0.0), black(1.0, 1.0)];
+        let out_of_order = vec![black(0.0, 1.0), black(0.8, 1.0), gold_stop(0.2, 1.0), black(0.4, 1.0), black(1.0, 1.0)];
+        // Gold at a tint of 0 prints no Gold ink.
+        let no_tint = vec![gold_stop(0.0, 0.0), black(1.0, 1.0)];
+        for (what, stops) in [("clear", clear), ("out of order", out_of_order), ("tint 0", no_tint)] {
+            let text = gold_gradient_pdf(stops, perceptual);
+            assert!(!text.contains("/Gold"), "{what}, perceptual {perceptual}: {text}");
+            assert!(!text.contains("/DeviceN") && !text.contains("/Separation"), "{what}, perceptual {perceptual}: {text}");
+        }
+        // Without the Gold stop out of order, Leaf's tints over paper are a Separation shading.
+        let leaf_only = vec![leaf(0.0, 1.0), leaf(0.8, 0.5), gold_stop(0.2, 1.0), paper(0.4), paper(1.0)];
+        let text = gold_and_leaf_gradient_pdf(leaf_only, perceptual);
+        assert!(text.contains("[/Separation/Leaf/") && !text.contains("/Gold") && !text.contains("/DeviceN"), "perceptual {perceptual}: {text}");
+        // A clear Gold stop next to an opaque one colors the stretch between them.
+        let text = gold_gradient_pdf(vec![black(0.0, 1.0), clear_gold.clone(), black(1.0, 1.0)], perceptual);
+        assert!(text.contains("[/DeviceN[/Black/Gold]"), "perceptual {perceptual}: {text}");
+    }
+    // Gold at a tint of 0 over a 30% cyan plate (a DeviceN gradient read from a PDF) keeps its
+    // process plate in the same space.
+    let plated = GradientStop { plates: Some([0.3, 0.0, 0.0, 0.0]), ..gold_stop(1.0, 0.0) };
+    let text = gold_gradient_pdf(vec![GradientStop::new(0.0, Color::cmyk(0.3, 0.0, 0.0, 0.0)), plated], false);
+    assert!(text.contains("[/DeviceN[/Cyan/Gold]"), "{text}");
 }
 
 #[test]
@@ -399,7 +547,7 @@ fn pdf_a_keeps_its_own_output_intent() {
     let r = pdf(&d, json!({"standard": "pdfA2b", "output": {"outputIntent": GENERIC_CMYK, "trapped": true}}));
     let text = String::from_utf8_lossy(&r.bytes);
     assert!(text.contains("GTS_PDFA1") && !text.contains("GTS_PDFX") && !text.contains("/Trapped"));
-    assert!(r.warnings.iter().any(|w| w.contains("PDF/A")), "{:?}", r.warnings);
+    assert!(r.setting_notes.iter().any(|w| w.contains("PDF/A")), "{:?}", r.setting_notes);
 }
 
 #[test]
