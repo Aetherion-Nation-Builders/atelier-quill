@@ -1921,8 +1921,8 @@ mod tests {
         assert_eq!(of("tool:pen"), None);
         // The home's words find the result: Preferences… under the native bar's Settings.
         let native_catalog = catalog(Lang::EN, true);
-        assert!(place(&native_catalog, "vectorcraft settings pref", "edit.preferences").is_some());
-        assert!(place(&c, "vectorcraft settings pref", "edit.preferences").is_none());
+        assert!(place(&native_catalog, "atelier quill settings pref", "edit.preferences").is_some());
+        assert!(place(&c, "atelier quill settings pref", "edit.preferences").is_none());
         // The menu item's own label finds the result too: File › Exit runs Quit VectorCraft.
         assert!(place(&c, "exit", "app.quit").is_some());
     }
